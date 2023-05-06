@@ -16,21 +16,30 @@ from astroplan import Observer, FixedTarget
 def get_ra_dec(driver, query):
     url = f'http://ned.ipac.caltech.edu/byname?objname={query}&hconst=67.8&omegam=0.308&omegav=0.692&wmap=4&corr_z=1'
     driver.get(url)
-    time.sleep(10)
+    time.sleep(5)
     html = driver.page_source
     soup = BeautifulSoup(html, 'html.parser')
-    row = soup.find('tr', {'class': 'ov_insiderow ov_inside_coord_row'})
 
-    if row:
-        ra_span = row.find('span', {'id': 'allbyname_7'})
-        dec_span = row.find('span', {'id': 'allbyname_8'})
+    ra = dec = mag = None
+
+    coord_row = soup.find('tr', {'class': 'ov_insiderow ov_inside_coord_row'})
+    if coord_row:
+        ra_span = coord_row.find('span', {'id': 'allbyname_7'})
+        dec_span = coord_row.find('span', {'id': 'allbyname_8'})
         if ra_span:
             ra = ra_span.text.strip()
         if dec_span:
             dec = dec_span.text.strip()
-        return ra, dec
-    else:
-        return None, None
+
+    mag_row = soup.find('tr', {'class': 'ov_insiderow ov_inside_photom_row_3'})
+    if mag_row:
+        mag_span = mag_row.find('span', {'id': 'allbyname_53'})
+
+        if mag_span:
+            mag = mag_span.text.strip().split()[0]
+
+    return ra, dec, mag
+
 
 
 
@@ -74,12 +83,16 @@ def main(targets):
     # Initialize the Selenium driver
     driver = webdriver.Chrome(ChromeDriverManager().install())
 
-    ra_dec_list = [get_ra_dec(driver, target) for target in targets]
+    #ra_dec_list = [get_ra_dec(driver, target) for target in targets]
+    ra_dec_mag_list = [get_ra_dec(driver, target) for target in targets]
+
 
     # Quit the Selenium driver
     driver.quit()
 
-    fixed_targets = [FixedTarget(coord=SkyCoord(ra=ra, dec=dec), name=name) for name, (ra, dec) in zip(targets, ra_dec_list)]
+    #fixed_targets = [FixedTarget(coord=SkyCoord(ra=ra, dec=dec), name=name) for name, (ra, dec) in zip(targets, ra_dec_list)]
+    fixed_targets = [FixedTarget(coord=SkyCoord(ra=ra, dec=dec), name=name) for name, (ra, dec, _) in zip(targets, ra_dec_mag_list)]
+
 
     start_time = Time("2023-04-01 00:00:00")
     end_time = Time("2023-06-14 00:00:00")
@@ -112,13 +125,12 @@ def main(targets):
     best_day_idx = np.argmin(avg_airmass)
     best_day = start_time + best_day_idx * u.day
 
-    print("RA and Dec values of targets:")
-    print("Name         RA (hh mm ss)    Dec (±dd mm ss)")
-    for target, (ra, dec) in zip(targets, ra_dec_list):
-        #print(f"{target}: RA = {ra}, Dec = {dec}")
+    print("RA, Dec and Magnitude values of targets:")
+    print("Name         RA (hh mm ss)    Dec (±dd mm ss)    Magnitude")
+    for target, (ra, dec, mag) in zip(targets, ra_dec_mag_list):
         ra_coord = Angle(ra, unit=u.hour).to_string(unit=u.hour, sep=' ', precision=1)
         dec_coord = Angle(dec, unit=u.deg).to_string(unit=u.deg, sep=' ', precision=1, alwayssign=True)
-        print(f"{target: <12} {ra_coord: <15} {dec_coord}")
+        print(f"{target: <12} {ra_coord: <15} {dec_coord: <15} {mag}")
 
 
 
@@ -126,7 +138,7 @@ def main(targets):
     print(f"\nThe best night for observing these targets, avoiding full moon, is: {best_day.to_datetime().strftime('%Y-%m-%d')}")
 
     print("Saving airmass chart for all targets...")
-    save_airmass_chart(list(zip(targets, ra_dec_list)), best_day.to_datetime(), screenshot_file="airmass_chart.png")
+    save_airmass_chart(list(zip(targets, [(ra, dec) for ra, dec, mag in ra_dec_mag_list])), best_day.to_datetime(), screenshot_file="airmass_chart.png")
 
 
 if __name__ == "__main__":
