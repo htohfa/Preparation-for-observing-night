@@ -51,32 +51,28 @@ def get_exposure_time(driver, magnitude, target_sn=50, wavelength=6000, max_iter
     magnitude_input.clear()
     magnitude_input.send_keys(str(magnitude))
 
-    # Set other parameters
-    # You may need to adjust these to match your requirements
+
     driver.find_element(By.NAME, "seeing").send_keys("0.7")
     driver.find_element(By.NAME, "slitwidth").send_keys("1.0")
+    driver.find_element(By.NAME, "airmass").send_keys("1.8")
 
     sn = 0
-    exposure_time = 100  # Initial guess for exposure time in seconds
+    exposure_time = 100  # Initialize
     for _ in range(max_iterations):
-        # Update the exposure time
+
+
         exposure_time_input = driver.find_element(By.NAME, "exptime")
         exposure_time_input.clear()
         exposure_time_input.send_keys(str(exposure_time))
 
-        # Click the Compute button
-        #driver.find_element_by_css_selector("input[type='submit'][value='Compute exposure']").click()
+
         driver.find_element(by=By.CSS_SELECTOR, value="input[type='submit'][value='Compute exposure']").click()
 
-        # Get the S/N at the desired wavelength
-        time.sleep(3)  # Give the plot some time to update
-
-
+        time.sleep(3)
 
         driver.find_element(By.CSS_SELECTOR, "input[type='submit'][value='Show table of counts']").click()
 
-        # Get the S/N at the desired wavelength
-        time.sleep(2)  # Give the table some time to load
+        time.sleep(2)
 
         table_rows = driver.find_elements(By.XPATH, "//table[@id='ctstab']//tbody/tr")
         sn = None
@@ -89,11 +85,10 @@ def get_exposure_time(driver, magnitude, target_sn=50, wavelength=6000, max_iter
         if sn is None:
             raise ValueError(f"Unable to find S/N at {wavelength} Å")
 
-        # Check if the S/N is close enough to the target S/N
+
         if abs(sn - target_sn) <= tolerance:
             break
 
-        # Update the exposure time based on the current S/N
         exposure_time *= (target_sn / sn) ** 2
 
 
@@ -142,14 +137,13 @@ def main(targets):
                                   elevation=4205 * u.m,
                                   name="Mauna Kea")
 
-    # Initialize the Selenium driver
+    # Initialize
     driver = webdriver.Chrome(ChromeDriverManager().install())
 
     #ra_dec_list = [get_ra_dec(driver, target) for target in targets]
     ra_dec_mag_list = [get_ra_dec(driver, target) for target in targets]
 
 
-    # Quit the Selenium driver
     driver.quit()
 
 
@@ -172,7 +166,7 @@ def main(targets):
                     airmass = observing_location.altaz(observing_time, target).secz
                     daily_airmass[i, j] = min(airmass, daily_airmass[i, j])
 
-    # Add moon phase checking and avoiding full moon nights
+    # moon_phases
     moon = ephem.Moon()
     moon_phases = np.zeros(n_days)
 
@@ -195,7 +189,7 @@ def main(targets):
         ra_coord = Angle(ra, unit=u.hour).to_string(unit=u.hour, sep=' ', precision=1)
         dec_coord = Angle(dec, unit=u.deg).to_string(unit=u.deg, sep=' ', precision=1, alwayssign=True)
 
-        # Calculate the exposure time and S/N
+
         exposure_time, sn = get_exposure_time(driver, mag)
 
         print(f"{target: <12} {ra_coord: <15} {dec_coord: <15}     {mag: <10}   {exposure_time: <14.2f}   {sn:.2f}")
