@@ -42,6 +42,68 @@ def get_ra_dec(driver, query):
 
 
 
+def get_exposure_time(driver, magnitude, target_sn=50, wavelength=6000, max_iterations=10, tolerance=0.5):
+    url = "http://etc.ucolick.org/web_s2n/lris"
+    driver.get(url)
+
+    # Fill in the object's magnitude
+    magnitude_input = driver.find_element(By.NAME, "mag")
+    magnitude_input.clear()
+    magnitude_input.send_keys(str(magnitude))
+
+    # Set other parameters
+    # You may need to adjust these to match your requirements
+    driver.find_element(By.NAME, "seeing").send_keys("0.7")
+    driver.find_element(By.NAME, "slitwidth").send_keys("1.0")
+
+    sn = 0
+    exposure_time = 100  # Initial guess for exposure time in seconds
+    for _ in range(max_iterations):
+        # Update the exposure time
+        exposure_time_input = driver.find_element(By.NAME, "exptime")
+        exposure_time_input.clear()
+        exposure_time_input.send_keys(str(exposure_time))
+
+        # Click the Compute button
+        #driver.find_element_by_css_selector("input[type='submit'][value='Compute exposure']").click()
+        driver.find_element(by=By.CSS_SELECTOR, value="input[type='submit'][value='Compute exposure']").click()
+
+        # Get the S/N at the desired wavelength
+        time.sleep(3)  # Give the plot some time to update
+
+
+
+        driver.find_element(By.CSS_SELECTOR, "input[type='submit'][value='Show table of counts']").click()
+
+        # Get the S/N at the desired wavelength
+        time.sleep(2)  # Give the table some time to load
+
+        table_rows = driver.find_elements(By.XPATH, "//table[@id='ctstab']//tbody/tr")
+        sn = None
+        for row in table_rows:
+            columns = row.find_elements(By.TAG_NAME, "td")
+            if columns and float(columns[0].text) == wavelength:
+                sn = float(columns[-1].text)
+                break
+
+        if sn is None:
+            raise ValueError(f"Unable to find S/N at {wavelength} Å")
+
+        # Check if the S/N is close enough to the target S/N
+        if abs(sn - target_sn) <= tolerance:
+            break
+
+        # Update the exposure time based on the current S/N
+        exposure_time *= (target_sn / sn) ** 2
+
+
+    return exposure_time, sn
+
+
+
+
+
+
 
 def save_airmass_chart(target_list, date, screenshot_file="airmass_chart.png"):
     driver = webdriver.Chrome()
@@ -90,6 +152,7 @@ def main(targets):
     # Quit the Selenium driver
     driver.quit()
 
+
     #fixed_targets = [FixedTarget(coord=SkyCoord(ra=ra, dec=dec), name=name) for name, (ra, dec) in zip(targets, ra_dec_list)]
     fixed_targets = [FixedTarget(coord=SkyCoord(ra=ra, dec=dec), name=name) for name, (ra, dec, _) in zip(targets, ra_dec_mag_list)]
 
@@ -125,15 +188,19 @@ def main(targets):
     best_day_idx = np.argmin(avg_airmass)
     best_day = start_time + best_day_idx * u.day
 
-    print("RA, Dec and Magnitude values of targets:")
-    print("Name         RA (hh mm ss)    Dec (±dd mm ss)    Magnitude")
+    driver = webdriver.Chrome(ChromeDriverManager().install())
+    print("RA, Dec, Magnitude, Exposure Time, and S/N values of targets:")
+    print("Name         RA (hh mm ss)    Dec (±dd mm ss)    Magnitude    Exposure Time    S/N")
     for target, (ra, dec, mag) in zip(targets, ra_dec_mag_list):
         ra_coord = Angle(ra, unit=u.hour).to_string(unit=u.hour, sep=' ', precision=1)
         dec_coord = Angle(dec, unit=u.deg).to_string(unit=u.deg, sep=' ', precision=1, alwayssign=True)
-        print(f"{target: <12} {ra_coord: <15} {dec_coord: <15} {mag}")
 
+        # Calculate the exposure time and S/N
+        exposure_time, sn = get_exposure_time(driver, mag)
 
+        print(f"{target: <12} {ra_coord: <15} {dec_coord: <15}     {mag: <10}   {exposure_time: <14.2f}   {sn:.2f}")
 
+    driver.quit()
 
     print(f"\nThe best night for observing these targets, avoiding full moon, is: {best_day.to_datetime().strftime('%Y-%m-%d')}")
 
