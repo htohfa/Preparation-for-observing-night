@@ -3,10 +3,10 @@ from setuptools import setup, find_packages
 setup(
     name="automate_observing",
     version="0.1",
-    description="Astronomical tools for RA, Dec, airmass chart, and exposure time.",
+    description="Astronomical tool for RA, Dec, airmass chart, and exposure time.",
     author="Hurum Maksora Tohfa",
     author_email="htohfa@uw.edu",
-    url="http://github.com/yourusername/astro_tools",
+    url="https://github.com/htohfa/observing-night.git",
     packages=find_packages(),
     install_requires=[
         "argparse",
