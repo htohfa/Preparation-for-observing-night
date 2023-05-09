@@ -1,5 +1,5 @@
 from selenium.webdriver.common.by import By
-import time
+import time 
 
 def get_exposure_time(driver, magnitude, target_sn=50, wavelength=6000, max_iterations=10, tolerance=0.5):
     url = "http://etc.ucolick.org/web_s2n/lris"
