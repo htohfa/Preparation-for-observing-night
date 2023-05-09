@@ -1,4 +1,4 @@
-# Observing night with Python
+# Observing night with automate-observing
 The automate-observing package is a Python package that provides functionality for observers to automate their telescope observations. It generates a list of Right Ascension (RA), Declination (Dec), and visible magnitude of targets from http://ned.ipac.caltech.edu/, calculates the best night for observing, and calculates exposure time for achieving a Signal-to-Noise ratio (S/N) of 50 using http://etc.ucolick.org/web_s2n/lris and save an airmass chart using http://catserver.ing.iac.es/staralt/index.php.
 
 The package also allows users to extract RA, Dec, and magnitude information for specific targets, without calculating exposure times. The exposure time function is fully optimazable to users needs i.e. users can adjust the S/N ratio, wavelength, maximum iteration, and tolerance while calculating the exposure time. This makes the package a powerful tool for observers who want to optimize their observations and reduce manual effort.
