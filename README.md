@@ -21,7 +21,7 @@ pip install automate_observing
 ## How to use
 
 After installing the automate_observing package, navigate to the directory where automate_observing is installed in the command prompt and execute 
-<span style="color:green">automate_observing 'RBS 1303' '3C 319'</span>
+<span style="color:blue"> automate_observing 'RBS 1303' '3C 319'</span>
 
 
 For using other functions such as exposure_time and get_ra_dec:
