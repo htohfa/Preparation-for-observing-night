@@ -30,22 +30,19 @@ For using other functions such as exposure_time and get_ra_dec:
 <span style="color:blue">
   
   
->>> import automate_observing as ao
+> import automate_observing as ao
   
   
->>> driver = ao.create_driver()
+> driver = ao.create_driver()
   
   
->>> ra_dec_mag = ao.get_ra_dec(driver, "RBS 1303")
+> ra_dec_mag = ao.get_ra_dec(driver, "RBS 1303")
   
   
->>> print(ra_dec_mag)
+> print(ra_dec_mag) => ('13h41m12.904s', '-14d38m40.58s', '13.4')
   
   
-('13h41m12.904s', '-14d38m40.58s', '13.4')
-  
-  
->>> exposure_time,sn = ao.get_exposure_time(driver,15, target_sn=60)
+> exposure_time,sn = ao.get_exposure_time(driver,15, target_sn=60)     => Default values are target_sn=50, wavelength=6000, max_iterations=10, tolerance=0.5
   
   
 </span>
