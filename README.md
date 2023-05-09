@@ -27,7 +27,7 @@ After installing the automate_observing package, navigate to the directory where
 For using other functions such as exposure_time and get_ra_dec:
 
 
-<span style="color:green">
+<span style="color:blue">
   
   
 >>> import automate_observing as ao
