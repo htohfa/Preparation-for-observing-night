@@ -1,5 +1,5 @@
 import argparse
-import numpy as np
+import numpy as np 
 from astropy.coordinates import Angle
 from selenium import webdriver
 from webdriver_manager.chrome import ChromeDriverManager
