@@ -4,7 +4,7 @@ from .get_exposure_time import get_exposure_time
 
 from selenium import webdriver
 
-def create_driver():
+def create_driver(): 
     options = webdriver.ChromeOptions()
     options.add_argument('--headless')
     driver = webdriver.Chrome(options=options)
