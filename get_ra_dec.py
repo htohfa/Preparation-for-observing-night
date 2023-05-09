@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from selenium import webdriver
+from selenium import webdriver 
 import time
 
 def get_ra_dec(driver, query):
