@@ -5,7 +5,7 @@ setup(
     version="0.1",
     description="Astronomical tools for RA, Dec, airmass chart, and exposure time.",
     author="Hurum Maksora Tohfa",
-    author_email="your.email@example.com",
+    author_email="htohfa@uw.edu",
     url="http://github.com/yourusername/astro_tools",
     packages=find_packages(),
     install_requires=[
