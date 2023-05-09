@@ -36,7 +36,7 @@ For using other functions such as exposure_time and get_ra_dec:
 > driver = ao.create_driver()
   
   
-> ra_dec_mag = ao.get_ra_dec(driver, "RBS 1303") => Positional arguments:Driver, targets
+> ra_dec_mag = ao.get_ra_dec(driver, "RBS 1303") => Positional arguments: Driver, targets
   
   
 > print(ra_dec_mag) => ('13h41m12.904s', '-14d38m40.58s', '13.4')
