@@ -13,20 +13,41 @@ The package also allows users to extract RA, Dec, and magnitude information for 
 ## Installation
 
 git clone https://github.com/htohfa/observing-night.git
+
+
 pip install automate_observing
+
 
 ## How to use
 
 After installing the automate_observing package, navigate to the directory where automate_observing is installed in the command prompt and execute 
 <span style="color:green">automate_observing 'RBS 1303' '3C 319'</span>
+
+
 For using other functions such as exposure_time and get_ra_dec:
+
+
 <span style="color:green">
+  
+  
 >>> import automate_observing as ao
+  
+  
 >>> driver = ao.create_driver()
+  
+  
 >>> ra_dec_mag = ao.get_ra_dec(driver, "RBS 1303")
+  
+  
 >>> print(ra_dec_mag)
+  
+  
 ('13h41m12.904s', '-14d38m40.58s', '13.4')
+  
+  
 >>> exposure_time,sn = ao.get_exposure_time(driver,15, target_sn=60)
+  
+  
 </span>
 
 
